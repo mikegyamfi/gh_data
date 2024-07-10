@@ -122,4 +122,6 @@ class VodaBundleForm(forms.Form):
         # self.fields['size'].queryset = models.Size.objects.filter(domain=domain)
 
 
+class UploadFileForm(forms.Form):
+    file = forms.FileField(label='Select an Excel file', help_text='Allowed file formats: .xlsx')
 

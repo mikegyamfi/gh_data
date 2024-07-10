@@ -3,10 +3,11 @@ import hmac
 import json
 from datetime import datetime
 
+import pandas as pd
 from decouple import config
 from django.contrib.auth.forms import PasswordResetForm
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 import requests
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
@@ -16,6 +17,7 @@ from . import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from . import helper, models
+from .forms import UploadFileForm
 
 
 # Create your views here.
@@ -1230,3 +1232,56 @@ def password_reset_request(request):
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="password/password_reset.html",
                   context={"password_reset_form": password_reset_form})
+
+
+def populate_custom_users_from_excel(request):
+    # Read the Excel file using pandas
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['file']
+
+            # Process the uploaded Excel file
+            df = pd.read_excel(excel_file)
+            counter = 0
+            # Iterate through rows to create CustomUser instances
+            for index, row in df.iterrows():
+                print(counter)
+                # Create a CustomUser instance for each row
+                custom_user = models.CustomUser.objects.create(
+                    first_name=row['first_name'],
+                    last_name=row['last_name'],
+                    username=str(row['username']),
+                    email=row['email'],
+                    phone=row['phone'],
+                    wallet=float(row['wallet']),
+                    status=str(row['status']),
+                    password1=row['password1'],
+                    password2=row['password2'],
+                    is_superuser=row['is_superuser'],
+                    is_staff=row['is_staff'],
+                    is_active=row['is_active'],
+                    password=row['password']
+                )
+
+                custom_user.save()
+
+                # group_names = row['groups'].split(',')  # Assuming groups are comma-separated
+                # groups = Group.objects.filter(name__in=group_names)
+                # custom_user.groups.set(groups)
+                #
+                # if row['user_permissions']:
+                #     permission_ids = [int(pid) for pid in row['user_permissions'].split(',')]
+                #     permissions = Permission.objects.filter(id__in=permission_ids)
+                #     custom_user.user_permissions.set(permissions)
+                print("killed")
+                counter = counter + 1
+            messages.success(request, 'All done')
+    else:
+        form = UploadFileForm()
+    return render(request, 'layouts/import_users.html', {'form': form})
+
+
+def delete_custom_users(request):
+    models.CustomUser.objects.all().delete()
+    return HttpResponseRedirect('Done')
