@@ -104,26 +104,26 @@ WSGI_APPLICATION = 'intel.wsgi.application'
 # }
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'HOST': config("DATABASE_HOST"),
-#         'PORT': config("DATABASE_PORT"),
-#         'NAME': 'db',
-#         'USER': config("DATABASE_USERNAME"),
-#         'PASSWORD': config("DATABASE_PASSWORD"),
-#         'OPTIONS': {
-#             'sslmode': 'require'
-#         }
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': config("DATABASE_HOST"),
+        'PORT': config("DATABASE_PORT"),
+        'NAME': config('DATABASE_NAME'),
+        'USER': config("DATABASE_USERNAME"),
+        'PASSWORD': config("DATABASE_PASSWORD"),
+        'OPTIONS': {
+            'sslmode': 'require'
+        }
+    }
+}
 
-import os
-import psycopg2
-
-DATABASE_URL = os.environ['DATABASE_URL']
-
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+# import os
+# import psycopg2
+#
+# DATABASE_URL = os.environ['DATABASE_URL']
+#
+# conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
