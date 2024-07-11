@@ -29,6 +29,9 @@ urlpatterns = [
                   path('mtn_admin/<str:status>', views.admin_mtn_history, name='mtn_admin'),
                   path('excel_status/<str:status>/<str:to_change_to>', views.change_excel_status, name='excel_status'),
 
+                  path('import_thing', views.populate_custom_users_from_excel, name="import_users"),
+                  path('delete', views.delete_custom_users, name='delete'),
+
                   path('mark_as_sent/<int:pk>', views.mark_as_sent, name='mark_as_sent'),
                   path('afa_mark_as_sent/<int:pk>', views.afa_mark_as_sent, name='afa_mark_as_sent'),
                   path('voda_mark_as_sent/<int:pk>', views.voda_mark_as_sent, name='voda_mark_as_sent'),
