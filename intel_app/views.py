@@ -563,6 +563,10 @@ def change_excel_status(request, status, to_change_to):
         return redirect("home")
 
 
+from django.db.models import FloatField
+from django.db.models.functions import Cast, Length, Substr
+
+
 @login_required(login_url='login')
 def admin_mtn_history(request, status):
     if request.user.is_staff and request.user.is_superuser:
@@ -572,68 +576,67 @@ def admin_mtn_history(request, status):
             from django.http import HttpResponse
             import datetime
 
-            # Assuming `uploaded_file` is the Excel file uploaded by the user
-            uploaded_file = request.FILES['file'] if 'file' in request.FILES else None
+            # Get the uploaded Excel file
+            uploaded_file = request.FILES.get('file')
             if not uploaded_file:
-                messages.error(request, "No excel file found")
+                messages.error(request, "No Excel file found")
                 return redirect('mtn_admin', status=status)
 
             # Load the uploaded Excel file into memory
             excel_buffer = BytesIO(uploaded_file.read())
             book = load_workbook(excel_buffer)
-            sheet = book.active  # Assuming the data is on the active sheet
+            sheet = book.active  # Assuming data is on the active sheet
 
-            # Assuming we have identified the recipient and data column indices
-            # Replace these with the actual indices if available
-            recipient_col_index = 1  # Example index for "RECIPIENT"
-            data_col_index = 2  # Example index for "DATA"
+            # Column indices for "RECIPIENT" and "DATA"
+            recipient_col_index = 1  # Update if necessary
+            data_col_index = 2  # Update if necessary
 
-            # Query your Django model
-            queryset = models.MTNTransaction.objects.filter(transaction_status="Pending").annotate(
+            # Query transactions with the current status
+            queryset = models.MTNTransaction.objects.filter(transaction_status=status).annotate(
                 offer_value=Cast(Substr('offer', 1, Length('offer') - 2), FloatField())
             ).order_by('-offer_value')
 
-            # Determine the starting row for updates, preserving headers and any other pre-existing content
-            start_row = 2  # Assuming data starts from row 2
+            # Start from row 2 (assuming headers in row 1)
+            start_row = 2
 
             for record in queryset:
-                # Assuming 'bundle_number' and 'offer' fields exist in your model
-                recipient_value = f"0{record.bundle_number}"  # Ensure it's a string to preserve formatting
-                data_value = record.offer  # Adjust based on actual field type
+                recipient_value = f"0{record.bundle_number}"
+                data_value = record.offer
                 cleaned_data_value = float(data_value.replace('MB', ''))
-                data_value_gb = round(float(cleaned_data_value) / 1000, 2)
+                data_value_gb = round(cleaned_data_value / 1000, 2)
 
-                # Find next available row (avoid overwriting non-empty rows if necessary)
+                # Find next empty row
                 while sheet.cell(row=start_row, column=recipient_col_index).value is not None:
                     start_row += 1
 
-                # Update cells
+                # Write data to cells
                 sheet.cell(row=start_row, column=recipient_col_index, value=recipient_value)
                 sheet.cell(row=start_row, column=data_col_index, value=data_value_gb)
 
-                # Update the record status, if necessary
-                record.transaction_status = "Processing"
-                record.save()
+                # Update the record status if necessary
+                if status == "Pending":
+                    record.transaction_status = "Processing"
+                    record.save()
+                # For "Processing" status, we do not change the status
+                # You can add more logic here if needed
 
-            # Save the modified Excel file to the buffer
-            excel_buffer.seek(0)  # Reset buffer position
+            # Save and return the modified Excel file
+            excel_buffer.seek(0)
             book.save(excel_buffer)
-
-            # Prepare the response with the modified Excel file
-            excel_buffer.seek(0)  # Reset buffer position to read the content
+            excel_buffer.seek(0)
             response = HttpResponse(excel_buffer.getvalue(),
                                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = 'attachment; filename={}.xlsx'.format(
-                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
-
+            response[
+                'Content-Disposition'] = f'attachment; filename={datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.xlsx'
             return response
 
+        # For GET requests, display transactions based on status
         all_txns = models.MTNTransaction.objects.filter(transaction_status=status).order_by('-transaction_date')[:800]
         context = {'txns': all_txns, 'status': status}
         return render(request, "layouts/services/mtn_admin.html", context=context)
     else:
         messages.error(request, "Access Denied")
-        return redirect('mtn_admin', status=status)
+        return redirect('home')
 
 
 @login_required(login_url='login')
