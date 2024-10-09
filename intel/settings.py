@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'gh-data-lvhew.ondigitalocean.app',
     'www.ghdata.store',
-    'gh-data-store-341a796c74b9.herokuapp.com'
+    'gh-data-store-341a796c74b9.herokuapp.com',
+    'www.ghstorehub.com'
 ]
 
 # Application definition
