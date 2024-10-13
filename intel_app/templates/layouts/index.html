@@ -20,13 +20,46 @@
           </div>
           <div class="col-lg-6 py-3 wow zoomIn">
             {% if request.user.is_authenticated %}
-                <div class="card border shadow p-3" style="background-image: linear-gradient(to right bottom, #ffffff, #ffffff, #6C55F9);">
-                  <span class="text-primary">Hi {{request.user.first_name}},</span><br>Transact with E-Wallet Seamlessly.
-                  <p>E-Wallet Balance:</p>
-                  <h3 class="text-primary">GHS {{wallet_balance}}</h3>
-                  <i>Low on Balance?</i>
-                  <a class="btn btn-outline-primary my-2" href="{% url 'topup-info' %}">Top Up</a>
-                </div>
+                <div class="card credit-card text-white" style="border-radius: 15px;">
+  <div class="card-body">
+    <!-- Card Header with Logo -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h5 class="mb-0">E-Wallet</h5>
+      </div>
+      <div>
+        <i class="fas fa-wallet fa-2x"></i>
+      </div>
+    </div>
+
+    <!-- Card Number -->
+    <div class="mb-2">
+      <h3 class="mb-0">**** **** **** {{ request.user.id|slice:"-4:" }}</h3>
+    </div>
+
+    <!-- Balance -->
+    <div class="mb-2">
+      <h2 class="mb-0">GHS {{ wallet_balance }}</h2>
+    </div>
+
+    <!-- Card Holder and Valid Thru -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <p class="mb-0">Wallet Holder</p>
+        <p class="mb-0">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+      </div>
+      <div>
+        <p class="mb-0">Valid Thru</p>
+        <p class="mb-0">{{ request.user.date_joined|date:"m/y" }}</p>
+      </div>
+    </div>
+
+    <!-- Top Up Button -->
+    <div class="text-right">
+      <a class="btn btn-outline-light" href="{% url 'topup-info' %}">Top Up</a>
+    </div>
+  </div>
+</div>
             {% else %}
                           <div class="img-place">
               <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_rLfMZE.json"  background="transparent"  speed="1"  style="width: 300px; height: 300px;"  loop  autoplay></lottie-player>
@@ -80,8 +113,8 @@
             <a href="#" class="btn btn-outline-primary ml-2">See pricing</a>
           </div>
           <div class="col-lg-6 py-3 wow zoomIn">
-            <div class="img-place text-center">
-              <img src="{% static 'assets/img/bg_image_3.png' %}" alt="">
+            <div style="height: 400px" class="img-place text-center">
+              <img height="auto" src="{% static 'assets/img/WhatsApp Image 2024-09-30 at 18.40.04_cbb1bfda.jpg' %}" alt="">
             </div>
           </div>
         </div>
