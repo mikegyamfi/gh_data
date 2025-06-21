@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="django" name="Django">
       <configuration>
-        <option name="rootFolder" value="$USER_HOME$/Documents/My Works/users-sites/gh-data" />
+        <option name="rootFolder" value="$MODULE_DIR$" />
         <option name="settingsModule" value="intel/settings.py" />
         <option name="manageScript" value="manage.py" />
         <option name="environment" value="&lt;map/&gt;" />
@@ -14,7 +14,7 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.12 (divinelychosenstar)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (wuella)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

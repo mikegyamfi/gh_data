@@ -35,6 +35,7 @@ class AdminInfo(models.Model):
     )
     payment_channel = models.CharField(max_length=250, choices=choices)
     afa_price = models.FloatField(null=True, blank=True)
+    agent_registration_fee = models.FloatField(null=True, blank=True, default=10)
 
 
 class BigTimeBundlePrice(models.Model):

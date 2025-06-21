@@ -49,6 +49,7 @@ urlpatterns = [
                   path("password_reset/", views.password_reset_request, name="password_reset"),
 
                   path('query_transaction', views.query_txn, name='query_txn'),
+                  path("upgrade-agent/", views.agent_upgrade, name="agent-upgrade"),
 
                   path('login', authViews.login_page, name='login'),
                   path('signup', authViews.sign_up, name='signup'),

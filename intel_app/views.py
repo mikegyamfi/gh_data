@@ -18,6 +18,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from . import helper, models
 from .forms import UploadFileForm
+from .models import CustomUser
 
 
 # Create your views here.
@@ -30,6 +31,50 @@ def home(request):
         }
         return render(request, "layouts/index.html", context=context)
     return render(request, "layouts/index.html")
+
+
+@login_required(login_url='login')
+def agent_upgrade(request):
+    user = request.user
+    fee = models.AdminInfo.objects.filter().first().agent_registration_fee
+    reference = helper.ref_generator()
+
+    if request.method == 'POST':
+        headers = {
+            'Authorization': f'Bearer {config("PAYSTACK_SECRET_KEY")}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "email": user.email,
+            "amount": int(fee * 100),
+            "reference": reference,
+            "metadata": {
+                "channel": "agent",
+                "db_id": user.id,
+                "real_amount": fee
+            }
+        }
+        resp = requests.post(
+            "https://api.paystack.co/transaction/initialize",
+            headers=headers, json=payload
+        )
+        data = resp.json()
+        if data.get("status"):
+            models.Payment.objects.create(
+                user=user,
+                reference=reference,
+                amount=fee,
+                transaction_date=datetime.now(),
+                transaction_status="Pending"
+            )
+            return HttpResponseRedirect(data["data"]["authorization_url"])
+        messages.error(request, "Could not start payment. Please try again.")
+        return redirect('home')
+
+    return render(request, "layouts/services/agent_upgrade.html", {
+        "fee": fee,
+        "reference": reference,
+    })
 
 
 def services(request):
@@ -1154,6 +1199,40 @@ def paystack_webhook(request):
                             return HttpResponse(status=200)
                     except:
                         return HttpResponse(status=200)
+                if channel == "agent":
+                    try:
+                        user = CustomUser.objects.get(id=int(metadata.get('db_id')))
+                        user.status = "Agent"
+                        user.save()
+
+                        # mark the Payment record completed
+                        payment = models.Payment.objects.filter(
+                            reference=reference, user=user
+                        ).first()
+                        if payment:
+                            payment.transaction_status = "Completed"
+                            payment.save()
+
+                        # notify via SMS
+                        sms_headers = {
+                            'Authorization': 'Bearer 1317|sCtbw8U97Nwg10hVbZLBPXiJ8AUby7dyozZMjJpU',
+                            'Content-Type': 'application/json'
+                        }
+                        sms_url = 'https://webapp.usmsgh.com/api/sms/send'
+                        sms_body = {
+                            'recipient': f"233{user.phone}",
+                            'sender_id': 'GH DATA',
+                            'message': f"Congratulations {user.first_name}! Your account has been upgraded to Agent."
+                        }
+                        try:
+                            requests.post(url=sms_url, params=sms_body, headers=sms_headers)
+                        except Exception as e:
+                            print(e)
+                            pass
+                    except Exception as e:
+                        print(e)
+                        pass
+                    return HttpResponse(status=200)
                 else:
                     return HttpResponse(status=200)
             else:

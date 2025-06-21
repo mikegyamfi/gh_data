@@ -14,7 +14,7 @@
             <a href="{% url 'services' %}" class="btn btn-outline-primary mb-3">Explore</a>
                         {% if request.user.is_authenticated %}
             {% if request.user.status == 'User' %}
-            <a href="https://wa.me/233548424519" class="btn btn-outline-primary mb-3">Become an Agent</a>
+            <a href="{% url 'agent-upgrade' %}" class="btn btn-outline-primary mb-3">Become an Agent</a>
             {% endif %}
             {% endif %}
           </div>

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% include 'inc/header.html' %}
+<div class="container py-5">
+  <h2 class="mb-4">Upgrade to Agent</h2>
+  <p>To become an Agent, pay a one-time fee of <strong>GHS {{ fee }}</strong>.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <!-- hidden reference already generated -->
+    <button type="submit" class="btn btn-primary">
+      Pay GHS {{ fee }}
+    </button>
+  </form>
+</div>
+{% endblock %}
