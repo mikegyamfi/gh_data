@@ -47,7 +47,7 @@ def agent_upgrade(request):
         payload = {
             "email": user.email,
             "amount": int(fee * 100),
-            "reference": reference,
+            "reference": reference,\
             "metadata": {
                 "channel": "agent",
                 "db_id": user.id,
@@ -59,6 +59,7 @@ def agent_upgrade(request):
             headers=headers, json=payload
         )
         data = resp.json()
+        print(data)
         if data.get("status"):
             models.Payment.objects.create(
                 user=user,
