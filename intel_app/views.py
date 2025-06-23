@@ -52,6 +52,7 @@ def agent_upgrade(request):
         "reference": reference,
         "public_key": config("PAYSTACK_PUBLIC_KEY"),
         "amount_pesewas": int(fee * 100),
+        "real_amount": int(fee)
     })
 
 
@@ -1174,20 +1175,21 @@ def paystack_webhook(request):
                     except:
                         return HttpResponse(status=200)
                 if channel == "agent":
+                    print("reached agent")
                     try:
                         user = CustomUser.objects.get(id=int(metadata.get('db_id')))
+                        print(user)
                         user.status = "Agent"
                         user.save()
 
-                        # mark the Payment record completed
                         payment = models.Payment.objects.filter(
                             reference=reference, user=user
                         ).first()
+
                         if payment:
                             payment.transaction_status = "Completed"
                             payment.save()
 
-                        # notify via SMS
                         sms_headers = {
                             'Authorization': 'Bearer 1317|sCtbw8U97Nwg10hVbZLBPXiJ8AUby7dyozZMjJpU',
                             'Content-Type': 'application/json'
