@@ -70,10 +70,10 @@ def pay_with_wallet(request):
         reference = request.POST.get("reference")
         if user.wallet is None:
             return JsonResponse(
-                {'status': f'Your wallet balance is low. Contact the admin to recharge. Admin Contact Info: 0{admin}'})
+                {'status': f'Your wallet balance is low. Top up your wallet to continue using our services.'})
         elif user.wallet <= 0 or user.wallet < float(amount):
             return JsonResponse(
-                {'status': f'Your wallet balance is low. Contact the admin to recharge. Admin Contact Info: 0{admin}'})
+                {'status': f'Your wallet balance is low. Top up your wallet to continue using our services.'})
         print(phone_number)
         print(amount)
         print(reference)
@@ -286,10 +286,10 @@ def mtn_pay_with_wallet(request):
 
         if user.wallet is None:
             return JsonResponse(
-                {'status': f'Your wallet balance is low. Contact the admin to recharge. Admin Contact Info: 0{admin}'})
+                {'status': f'Your wallet balance is low. Top up your wallet to continue using our services.'})
         elif user.wallet <= 0 or user.wallet < float(amount):
             return JsonResponse(
-                {'status': f'Your wallet balance is low. Contact the admin to recharge. Admin Contact Info: 0{admin}'})
+                {'status': f'Your wallet balance is low. Top up your wallet to continue using our services.'})
         bundle = models.MTNBundlePrice.objects.get(
             price=float(amount)).bundle_volume if user.status == "User" else models.AgentMTNBundlePrice.objects.get(
             price=float(amount)).bundle_volume
