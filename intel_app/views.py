@@ -1179,6 +1179,7 @@ def paystack_webhook(request):
                     try:
                         user = CustomUser.objects.get(id=int(metadata.get('db_id')))
                         print(user)
+                        print("got the user")
                         user.status = "Agent"
                         user.save()
 
