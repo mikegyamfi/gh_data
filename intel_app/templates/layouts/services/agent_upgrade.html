@@ -33,7 +33,8 @@
           currency: 'GHS',
           metadata: {
             'db_id': '{{ request.user.id }}',
-            'real_amount': '{{ real_amount }}'
+            'real_amount': '{{ real_amount }}',
+            'channel': "agent"
           },
           callback: function(response){
 
