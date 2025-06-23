@@ -36,45 +36,22 @@ def home(request):
 @login_required(login_url='login')
 def agent_upgrade(request):
     user = request.user
-    fee = models.AdminInfo.objects.filter().first().agent_registration_fee
+    fee = models.AdminInfo.objects.first().agent_registration_fee
     reference = helper.ref_generator()
 
-    if request.method == 'POST':
-        headers = {
-            'Authorization': f'Bearer {config("PAYSTACK_SECRET_KEY")}',
-            'Content-Type': 'application/json'
-        }
-        payload = {
-            "email": user.email,
-            "amount": int(fee * 100),
-            "reference": reference,\
-            "metadata": {
-                "channel": "agent",
-                "db_id": user.id,
-                "real_amount": fee
-            }
-        }
-        resp = requests.post(
-            "https://api.paystack.co/transaction/initialize",
-            headers=headers, json=payload
-        )
-        data = resp.json()
-        print(data)
-        if data.get("status"):
-            models.Payment.objects.create(
-                user=user,
-                reference=reference,
-                amount=fee,
-                transaction_date=datetime.now(),
-                transaction_status="Pending"
-            )
-            return HttpResponseRedirect(data["data"]["authorization_url"])
-        messages.error(request, "Could not start payment. Please try again.")
-        return redirect('home')
+    models.Payment.objects.create(
+        user=user,
+        reference=reference,
+        amount=fee,
+        transaction_date=datetime.now(),
+        transaction_status="Pending",
+    )
 
     return render(request, "layouts/services/agent_upgrade.html", {
         "fee": fee,
         "reference": reference,
+        "public_key": config("PAYSTACK_PUBLIC_KEY"),
+        "amount_pesewas": int(fee * 100),
     })
 
 

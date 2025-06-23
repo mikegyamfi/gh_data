@@ -2,17 +2,47 @@
 {% load static %}
 
 {% block content %}
-    {% include 'inc/header.html' %}
-<div class="container py-5">
-  <h2 class="mb-4">Upgrade to Agent</h2>
-  <p>To become an Agent, pay a one-time fee of <strong>GHS {{ fee }}</strong>.</p>
+  {% include 'inc/header.html' %}
 
-  <form method="post">
-    {% csrf_token %}
-    <!-- hidden reference already generated -->
-    <button type="submit" class="btn btn-primary">
-      Pay GHS {{ fee }}
-    </button>
-  </form>
-</div>
+  <div class="container py-5">
+    <h2 class="mb-4">Upgrade to Agent</h2>
+    <p>To become an Agent, pay a one-time fee of <strong>GHS {{ fee }}</strong>.</p>
+
+    <form id="payment-form">
+      <button
+        id="paystack-button"
+        type="button"
+        class="btn btn-primary">
+        Pay GHS {{ fee }}
+      </button>
+    </form>
+  </div>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+    document
+      .getElementById('paystack-button')
+      .addEventListener('click', function(e) {
+        e.preventDefault();
+
+        let handler = PaystackPop.setup({
+          key:      '{{ public_key }}',
+          email:    '{{ request.user.email }}',
+          amount:   {{ amount_pesewas }},      // in pesewas
+          ref:      '{{ reference }}',
+          currency: 'GHS',
+          metadata: {
+            'db_id': '{{ request.user.id }}',
+          },
+          callback: function(response){
+
+            window.location.href = "{% url 'home' %}";
+          },
+          onClose: function(){
+            alert('Payment cancelled.');
+          }
+        });
+        handler.openIframe();
+      });
+  </script>
 {% endblock %}
